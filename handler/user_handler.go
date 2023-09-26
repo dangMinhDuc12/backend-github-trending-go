@@ -1,31 +1,129 @@
 package handler
 
 import (
+	"example/backend-github-trending/model"
+	"example/backend-github-trending/model/req"
+	"example/backend-github-trending/repository"
+	"example/backend-github-trending/security"
 	"net/http"
 
+	"github.com/go-playground/validator/v10"
+	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/gommon/log"
 )
 
 
-func   HandleSignin(c echo.Context) error {
+type UserHandler struct {
+	UserRepo repository.UserRepo
+}
+
+
+func (u *UserHandler) HandleSignup(c echo.Context) error {
+	req := req.ReqSignUp{}
+
+	//----- Start Bind user request to req variable -----//
+	if err := c.Bind(&req); err != nil {
+		log.Error(err)
+
+		return c.JSON(http.StatusBadRequest, model.Response{
+			StatusCode: http.StatusBadRequest,
+			Message: err.Error(),
+			Data: nil,
+		})
+	}
+
+		//----- End Bind user request to req variable -----//
+
+
+	//----- Start validate request -----//
+	validate := validator.New(validator.WithRequiredStructEnabled())
+
+	if err := validate.Struct(req); err != nil {
+		log.Error(err.Error())
+
+		return c.JSON(http.StatusBadRequest, model.Response{
+			StatusCode: http.StatusBadRequest,
+			Message: err.Error(),
+			Data: nil,
+		})
+	}
+
+	//----- End validate request -----//
+
+
+	//----- Start format data for insert db -----//
+	hash := security.HashAndSalt([]byte(req.Password))
+	role := model.MEMBER.String()
+
+	userId, err := uuid.NewUUID()
+
+	if err != nil {
+		log.Error(err)
+
+		return c.JSON(http.StatusForbidden, model.Response{
+			StatusCode: http.StatusForbidden,
+			Message: err.Error(),
+			Data: nil,
+		})
+	}
+
+	user := model.User {
+		UserId: userId.String(),
+		FullName: req.FullName,
+		Email: req.Email,
+		Password: hash,
+		Role: role,
+	}
+
+	//----- End format data for insert db -----//
+
+
+	//----- Start Handle Insert db -----//
+
+
+
+	user, err = u.UserRepo.SaveUser(c.Request().Context(), user)
+
+
+	if err != nil {
+		return c.JSON(http.StatusConflict, model.Response{
+			StatusCode: http.StatusConflict,
+			Message: err.Error(),
+			Data: nil,
+		})
+	}
+
+
+	//----- End Handle Insert db -----//
+
+
+	user.Password = ""
+	return c.JSON(http.StatusOK, model.Response{
+		StatusCode: http.StatusOK,
+		Message: "success",
+		Data: user,
+	})
+}
+
+func (u *UserHandler) HandleGetListUser(c echo.Context) error {
+	//----- Start query db -----//
+	users, _ := u.UserRepo.GetListUser(c.Request().Context())
+
+	//----- End query db -----//
+
+
+	return c.JSON(http.StatusOK, model.Response{
+		StatusCode: http.StatusOK,
+		Message: "success",
+		Data: users,
+	})
+
+}
+
+func (u *UserHandler) HandleSignin(c echo.Context) error {
 	return c.JSON(http.StatusOK, echo.Map{
 		"user": "Duc",
 		"email": "duc@gmail.com",
 	})
-}
-
-func HandleSignup(c echo.Context) error {
-	type User struct {
-		Email string `json:"emailMap"` //thay đổi tên trường Email mà hàm này sẽ trả ra thành emailMap
-		FullName string
-		Age int
-	}
-
-	user := User{
-		Email: "duc@gmail.com",
-		FullName: "DucDang",
-		Age: 10,
-	}
-
-	return c.JSON(http.StatusOK, user)
 }

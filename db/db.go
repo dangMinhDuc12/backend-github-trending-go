@@ -1,5 +1,7 @@
 package db
 
+// install package sql-migrate bằng lệnh go install
+
 import (
 	"fmt"
 	"log"
