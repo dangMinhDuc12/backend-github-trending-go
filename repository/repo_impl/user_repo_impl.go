@@ -2,9 +2,11 @@ package repoimpl
 
 import (
 	"context"
+	"database/sql"
 	"example/backend-github-trending/banana"
 	"example/backend-github-trending/db"
 	"example/backend-github-trending/model"
+	"example/backend-github-trending/model/req"
 	"example/backend-github-trending/repository"
 	"time"
 
@@ -68,4 +70,23 @@ func (u *UserRepoImpl) GetListUser(context context.Context) ([]model.User, error
 	}
 
 	return users, nil
+}
+
+func (u *UserRepoImpl) CheckLogin(context context.Context, loginReq req.ReqSignIn) (model.User, error) {
+	user := model.User{}
+
+	query := `SELECT * FROM public.users WHERE email = $1`
+
+	err := u.sql.Db.GetContext(context, &user, query, loginReq.Email)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return user, banana.UserNotExist
+		}
+
+		log.Error(err.Error())
+		return user, err
+	}
+
+	return user, nil
 }
