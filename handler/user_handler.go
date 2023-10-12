@@ -189,6 +189,24 @@ func (u *UserHandler) HandleSignin(c echo.Context) error {
 
 	//----- End check password -----//
 
+	//----- Start Generate token -----//
+
+	token, err := security.GenToken(user)
+
+	if err != nil {
+		return c.JSON(http.StatusUnauthorized, model.Response{
+			StatusCode: http.StatusUnauthorized,
+			Message: "Đăng nhập không thành công",
+			Data: nil,
+		})
+	}
+
+	user.Token = token
+
+	//----- End Generate token -----//
+
+
+	user.Password = ""
 
 		return c.JSON(http.StatusOK, model.Response{
 			StatusCode: http.StatusOK,

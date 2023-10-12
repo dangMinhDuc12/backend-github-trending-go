@@ -17,5 +17,5 @@ type API struct {
 func (api *API) SetupRouter() {
 	api.Echo.POST("/user/sign-in", api.UserHandler.HandleSignin, localMiddleware.TestMiddleware())
 	api.Echo.POST("/user/sign-up", api.UserHandler.HandleSignup)
-	api.Echo.GET("/user", api.UserHandler.HandleGetListUser)
+	api.Echo.GET("/user", api.UserHandler.HandleGetListUser, localMiddleware.CheckToken())
 }
