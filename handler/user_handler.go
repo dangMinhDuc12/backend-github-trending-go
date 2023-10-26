@@ -7,7 +7,6 @@ import (
 	"example/backend-github-trending/security"
 	"net/http"
 
-	"github.com/go-playground/validator/v10"
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/gommon/log"
@@ -162,9 +161,8 @@ func (u *UserHandler) HandleSignin(c echo.Context) error {
 	//----- End Bind user request to req variable -----//
 
 	//----- Start validate request -----//
-	validate := validator.New(validator.WithRequiredStructEnabled())
 
-	if err := validate.Struct(reqBody); err != nil {
+	if err := c.Validate(reqBody); err != nil {
 		log.Error(err.Error())
 
 		return c.JSON(http.StatusBadRequest, model.Response{
