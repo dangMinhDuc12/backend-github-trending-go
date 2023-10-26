@@ -50,7 +50,7 @@ func (cv *StructValidator) RegisterValidate() {
 	})
 
 	cv.Validator.RegisterTranslation("email", cv.Trans, func(ut ut.Translator) error {
-		return ut.Add("email", "{0} không đúng định dạng email", true)
+		return ut.Add("email", "{0} không đúng định dạng", true)
 	}, func(ut ut.Translator, fe validator.FieldError) string {
 		t, _ := ut.T("email", fe.Field())
 

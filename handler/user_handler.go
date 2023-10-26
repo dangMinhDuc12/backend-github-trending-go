@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"example/backend-github-trending/helper"
 	"example/backend-github-trending/model"
 	"example/backend-github-trending/model/req"
 	"example/backend-github-trending/repository"
@@ -51,10 +50,9 @@ func (u *UserHandler) HandleSignup(c echo.Context) error {
 	// }
 
 	//----- start custom validate -----//
-	validate := helper.NewStructValidator()
-	validate.RegisterValidate()
 
-	if err := validate.Validate(req); err != nil {
+
+	if err := c.Validate(req); err != nil {
 		log.Error(err.Error())
 
 		return c.JSON(http.StatusBadRequest, model.Response{

@@ -3,6 +3,7 @@ package main
 import (
 	"example/backend-github-trending/db"
 	"example/backend-github-trending/handler"
+	"example/backend-github-trending/helper"
 	repoimpl "example/backend-github-trending/repository/repo_impl"
 	"example/backend-github-trending/router"
 
@@ -24,6 +25,12 @@ func main() {
 
 
     e := echo.New()
+
+		structValidator := helper.NewStructValidator()
+		structValidator.RegisterValidate()
+
+		e.Validator = structValidator
+
 		userHandler := handler.UserHandler{
 			UserRepo: repoimpl.NewUserRepo(sql),
 		}
