@@ -7,4 +7,5 @@ var (
 	SignUpFail = errors.New("SignUp Failed")
 	GetListUserFail = errors.New("Get list user fail")
 	UserNotExist = errors.New("User does not exist")
+	UpdateUserFail = errors.New("Update user fail")
 )

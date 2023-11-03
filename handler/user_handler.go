@@ -230,3 +230,87 @@ func (u *UserHandler) HandleSignin(c echo.Context) error {
 		})
 
 }
+
+func (u *UserHandler) HandleGetProfileUser(c echo.Context) error {
+
+	userContext := c.Get("userContext").(model.JwtCustomClaims)
+
+
+	user, err := u.UserRepo.GetProfileUser(c.Request().Context(), userContext.UserId)
+
+	if (err != nil) {
+			return c.JSON(http.StatusUnauthorized, model.Response{
+			StatusCode: http.StatusUnauthorized,
+			Message: "Get profile user thất bại",
+			Data: nil,
+		})
+	}
+
+
+	user.Password = ""
+
+	
+
+	return c.JSON(http.StatusOK, model.Response{
+		StatusCode: http.StatusOK,
+		Message: "Get profile user thành công",
+		Data: user,
+	})
+
+}
+
+func (u* UserHandler) HandleUpdateUser(c echo.Context) error {
+	userContext := c.Get("userContext").(model.JwtCustomClaims)
+
+	req := req.ReqUpdate{}
+	err := c.Bind(&req)
+
+		if err != nil {
+		log.Error(err)
+
+		return c.JSON(http.StatusBadRequest, model.Response{
+			StatusCode: http.StatusBadRequest,
+			Message: err.Error(),
+			Data: nil,
+		})
+	}
+
+		//----- start custom validate -----//
+
+
+	if err := c.Validate(req); err != nil {
+		log.Error(err.Error())
+
+		return c.JSON(http.StatusBadRequest, model.Response{
+			StatusCode: http.StatusBadRequest,
+			Message: err.Error(),
+			Data: nil,
+		})
+	}
+
+	//----- end custom validate -----//
+
+	user := model.User{
+		UserId: userContext.UserId,
+		FullName: req.FullName,
+		Email: req.Email,
+	}
+
+	user, err = u.UserRepo.UpdateUser(c.Request().Context(), user)
+
+
+	if err != nil {
+		return c.JSON(http.StatusConflict, model.Response{
+			StatusCode: http.StatusConflict,
+			Message: err.Error(),
+			Data: nil,
+		})
+	}
+
+	return c.JSON(http.StatusOK, model.Response{
+		StatusCode: http.StatusOK,
+		Message: "success",
+		Data: user,
+	})
+
+}

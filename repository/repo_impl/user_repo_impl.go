@@ -90,3 +90,36 @@ func (u *UserRepoImpl) CheckLogin(context context.Context, loginReq req.ReqSignI
 
 	return user, nil
 }
+
+func (u *UserRepoImpl) GetProfileUser(context context.Context, userId string) (model.User, error) {
+	user := model.User{}
+
+	query := `SELECT * FROM public.users WHERE user_id = $1`
+
+
+	err := u.sql.Db.GetContext(context, &user, query, userId)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return user, banana.UserNotExist
+		}
+
+		log.Error(err.Error())
+		return user, err
+	}
+
+	return user, nil
+}
+
+func (u *UserRepoImpl) UpdateUser(context context.Context, user model.User) (model.User, error) {
+	query := `UPDATE users SET full_name = :full_name, email = :email, updated_at = NOW() WHERE user_id = :user_id`
+
+	_, err := u.sql.Db.NamedExecContext(context, query, user)
+
+	if err != nil {
+		log.Error(err.Error())
+		return user, banana.UpdateUserFail
+	}
+
+	return user, nil
+}

@@ -29,13 +29,13 @@ func TestMiddleware() echo.MiddlewareFunc {
 
 			//----- End Bind user request to req variable -----//
 
-			if req.Email != "dangminhduca3@gmail.com" {
-				return c.JSON(http.StatusBadRequest, model.Response{
-					StatusCode: http.StatusBadRequest,
-					Message: "This user is not admin",
-					Data: nil,
-				})
-			}
+			// if req.Email != "dangminhduca3@gmail.com" {
+			// 	return c.JSON(http.StatusBadRequest, model.Response{
+			// 		StatusCode: http.StatusBadRequest,
+			// 		Message: "This user is not admin",
+			// 		Data: nil,
+			// 	})
+			// }
 
 			//request only bind once time, so we have to set request in context and get them in handler
 			c.Set("requestBody", req)
